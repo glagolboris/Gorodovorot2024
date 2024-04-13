@@ -1,10 +1,13 @@
 import os
 from dotenv import load_dotenv
-
+from bot import AioBot
+import asyncio
 
 class Main:
     def __init__(self) -> None:
-        print(self.api_key)
+        api = self.api_key
+        self.aio_bot = AioBot(api)
+        asyncio.run(self.aio_bot.start())
 
     @property
     def api_key(self):

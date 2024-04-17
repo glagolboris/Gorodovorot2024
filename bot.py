@@ -16,3 +16,4 @@ class AioBot:
 
     async def start(self):
         await self.dispatcher.start_polling(self.bot)
+ 

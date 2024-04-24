@@ -1,0 +1,226 @@
+Index: db.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import asyncio\nfrom sqlalchemy_aio import ASYNCIO_STRATEGY\nfrom sqlalchemy import (\n    Column, Integer, MetaData, Table, Text, create_engine, select)\nfrom sqlalchemy.schema import CreateTable, DropTable\n\n\nclass asyncDb:\n    def __init__(self, user, password):\n        self.database_user = user\n        self.user_password = password\n\n    async def main(self):\n        self.engine = create_engine(f'postgresql://{self.database_user}:{self.user_password}/gorodovorot')\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/db.py b/db.py
+--- a/db.py	(revision 3597dc5e2f3c30ad082aea5b82f70e2b8f68bd22)
++++ b/db.py	(date 1713619612295)
+@@ -1,15 +1,19 @@
+-import asyncio
+-from sqlalchemy_aio import ASYNCIO_STRATEGY
+-from sqlalchemy import (
+-    Column, Integer, MetaData, Table, Text, create_engine, select)
+-from sqlalchemy.schema import CreateTable, DropTable
++from sqlalchemy import create_engine, Column, Integer, String, DateTime
++from sqlalchemy.sql import func
++from sqlalchemy.orm import sessionmaker
+ 
+ 
+-class asyncDb:
+-    def __init__(self, user, password):
+-        self.database_user = user
+-        self.user_password = password
++class User(SqlAlchemyBase):
++    __tablename__ = 'users'
+ 
+-    async def main(self):
+-        self.engine = create_engine(f'postgresql://{self.database_user}:{self.user_password}/gorodovorot')
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    surname = Column(String)
++    name = Column(String)
++    age = Column(Integer)
++    position = Column(String)
++    speciality = Column(String)
++    address = Column(String)
++    email = Column(String, unique=True)
++    hashed_password = Column(String)
++    modified_date = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+ 
+Index: main.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import os\nfrom dotenv import load_dotenv\nfrom bot import AioBot\nfrom db import asyncDb\nimport asyncio\n\nclass Main:\n    def __init__(self) -> None:\n        api = self.api_key\n        self.aio_bot = AioBot(api)\n        self.db = asyncDb(user='admin', password=self.db_password)\n        asyncio.run(self.aio_bot.start())\n\n    @property\n    def api_key(self) -> str:\n        \"\"\"\n        :return: Telegram Bot Api from .env\n        \"\"\"\n        load_dotenv()\n        get_api = os.getenv(\"API\")\n        return get_api\n\n    @property\n    def db_password(self) -> str:\n        \"\"\"\n        :return: PostgreSQL user password from .env\n        \"\"\"\n        load_dotenv()\n        get_pass = os.getenv(\"DATABASE_PASSWORD\")\n        return get_pass\n\n\nif __name__ == '__main__':\n    main = Main()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/main.py b/main.py
+--- a/main.py	(revision 3597dc5e2f3c30ad082aea5b82f70e2b8f68bd22)
++++ b/main.py	(date 1713370080178)
+@@ -9,7 +9,11 @@
+         api = self.api_key
+         self.aio_bot = AioBot(api)
+         self.db = asyncDb(user='admin', password=self.db_password)
+-        asyncio.run(self.aio_bot.start())
++
++        ioloop = asyncio.get_event_loop()
++        tasks = [ioloop.create_task(self.db.main()), ioloop.create_task(self.aio_bot.start())]
++        ioloop.run_until_complete(asyncio.wait(tasks))
++        ioloop.close()
+ 
+     @property
+     def api_key(self) -> str:
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"c10e0bed-8cf5-4d28-9a01-7361766f088a\" name=\"Changes\" comment=\".env файл, создание бота на BotFather, api3\">\n      <change afterPath=\"$PROJECT_DIR$/db.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.env\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.env\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/bot.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/bot.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/main.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/main.py\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\n      <map>\n        <entry key=\"$PROJECT_DIR$\" value=\"main\" />\n      </map>\n    </option>\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"HighlightingSettingsPerFile\">\n    <setting file=\"file://$PROJECT_DIR$/venv/lib/python3.10/site-packages/aiogram/filters/command.py\" root0=\"SKIP_INSPECTION\" />\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"2f2yoSg9wkhJEa9wtzpbPyZNNkm\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"WebServerToolWindowFactoryState\": \"false\",\n    \"last_opened_file_path\": \"/Users/glagolboris/Documents/Programming/gorodovorot2024\",\n    \"settings.editor.selected.configurable\": \"preferences.lookFeel\"\n  }\n}]]></component>\n  <component name=\"RunManager\" selected=\"Python.main\">\n    <configuration name=\"bot\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"gorodovorot2024\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"true\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/bot.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"main (1)\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"gorodovorot2024\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$/../smth_cute\" />\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/../smth_cute/main.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"main\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"gorodovorot2024\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <option name=\"IS_MODULE_SDK\" value=\"true\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/main.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Python.main\" />\n        <item itemvalue=\"Python.bot\" />\n        <item itemvalue=\"Python.main (1)\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"c10e0bed-8cf5-4d28-9a01-7361766f088a\" name=\"Changes\" comment=\"\" />\n      <created>1713013641786</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1713013641786</updated>\n      <workItem from=\"1713013643020\" duration=\"757000\" />\n      <workItem from=\"1713014413997\" duration=\"5895000\" />\n      <workItem from=\"1713200511258\" duration=\"2667000\" />\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"Создание первого файла, создание окружения и т. п.\">\n      <created>1713013738945</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713013738945</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"Создание первого файла, создание окружения и т. п.\">\n      <created>1713014441741</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713014441741</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"Создание первого файла, создание окружения и т. п.\">\n      <created>1713014702894</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713014702894</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\".env файл, создание бота на BotFather, api\">\n      <created>1713015545832</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713015545832</updated>\n    </task>\n    <task id=\"LOCAL-00005\" summary=\".env файл, создание бота на BotFather, api3\">\n      <created>1713018824798</created>\n      <option name=\"number\" value=\"00005\" />\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713018824798</updated>\n    </task>\n    <task id=\"LOCAL-00006\" summary=\".env файл, создание бота на BotFather, api3\">\n      <created>1713018865380</created>\n      <option name=\"number\" value=\"00006\" />\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1713018865380</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"7\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State>\n              <option name=\"FILTERS\">\n                <map>\n                  <entry key=\"branch\">\n                    <value>\n                      <list>\n                        <option value=\"main\" />\n                      </list>\n                    </value>\n                  </entry>\n                </map>\n              </option>\n            </State>\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"Создание первого файла, создание окружения и т. п.\" />\n    <MESSAGE value=\".env файл, создание бота на BotFather, api\" />\n    <MESSAGE value=\"Бот говорит &quot;Привет!&quot; при команде /start\" />\n    <MESSAGE value=\".env файл, создание бота на BotFather, api3\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\".env файл, создание бота на BotFather, api3\" />\n  </component>\n  <component name=\"com.intellij.coverage.CoverageDataManagerImpl\">\n    <SUITE FILE_PATH=\"coverage/gorodovorot2024$main__1_.coverage\" NAME=\"main (1) Coverage Results\" MODIFIED=\"1713200684008\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/../smth_cute\" />\n    <SUITE FILE_PATH=\"coverage/gorodovorot2024$bot.coverage\" NAME=\"bot Coverage Results\" MODIFIED=\"1713365564880\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$\" />\n    <SUITE FILE_PATH=\"coverage/gorodovorot2024$main.coverage\" NAME=\"main Coverage Results\" MODIFIED=\"1713365569782\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 3597dc5e2f3c30ad082aea5b82f70e2b8f68bd22)
++++ b/.idea/workspace.xml	(date 1713619612883)
+@@ -1,11 +1,9 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ChangeListManager">
+-    <list default="true" id="c10e0bed-8cf5-4d28-9a01-7361766f088a" name="Changes" comment=".env файл, создание бота на BotFather, api3">
+-      <change afterPath="$PROJECT_DIR$/db.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
++    <list default="true" id="c10e0bed-8cf5-4d28-9a01-7361766f088a" name="Changes" comment="создал базу данных, работа с бд асинхронно">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/db.py" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+@@ -40,16 +38,16 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "RunOnceActivity.OpenProjectViewOnStart": "true",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "WebServerToolWindowFactoryState": "false",
+-    "last_opened_file_path": "/Users/glagolboris/Documents/Programming/gorodovorot2024",
+-    "settings.editor.selected.configurable": "preferences.lookFeel"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
++    &quot;last_opened_file_path&quot;: &quot;/Users/glagolboris/Documents/Programming/gorodovorot2024&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+   }
+-}]]></component>
+-  <component name="RunManager" selected="Python.main">
++}</component>
++  <component name="RunManager" selected="Python.sync_file">
+     <configuration name="bot" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+       <module name="gorodovorot2024" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+@@ -72,6 +70,28 @@
+       <option name="INPUT_FILE" value="" />
+       <method v="2" />
+     </configuration>
++    <configuration name="db" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++      <module name="gorodovorot2024" />
++      <option name="INTERPRETER_OPTIONS" value="" />
++      <option name="PARENT_ENVS" value="true" />
++      <envs>
++        <env name="PYTHONUNBUFFERED" value="1" />
++      </envs>
++      <option name="SDK_HOME" value="" />
++      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
++      <option name="IS_MODULE_SDK" value="true" />
++      <option name="ADD_CONTENT_ROOTS" value="true" />
++      <option name="ADD_SOURCE_ROOTS" value="true" />
++      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/db.py" />
++      <option name="PARAMETERS" value="" />
++      <option name="SHOW_COMMAND_LINE" value="false" />
++      <option name="EMULATE_TERMINAL" value="false" />
++      <option name="MODULE_MODE" value="false" />
++      <option name="REDIRECT_INPUT" value="false" />
++      <option name="INPUT_FILE" value="" />
++      <method v="2" />
++    </configuration>
+     <configuration name="main (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+       <module name="gorodovorot2024" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+@@ -108,6 +128,28 @@
+       <option name="ADD_SOURCE_ROOTS" value="true" />
+       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
++      <option name="PARAMETERS" value="" />
++      <option name="SHOW_COMMAND_LINE" value="false" />
++      <option name="EMULATE_TERMINAL" value="false" />
++      <option name="MODULE_MODE" value="false" />
++      <option name="REDIRECT_INPUT" value="false" />
++      <option name="INPUT_FILE" value="" />
++      <method v="2" />
++    </configuration>
++    <configuration name="sync_file" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++      <module name="gorodovorot2024" />
++      <option name="INTERPRETER_OPTIONS" value="" />
++      <option name="PARENT_ENVS" value="true" />
++      <envs>
++        <env name="PYTHONUNBUFFERED" value="1" />
++      </envs>
++      <option name="SDK_HOME" value="" />
++      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
++      <option name="IS_MODULE_SDK" value="true" />
++      <option name="ADD_CONTENT_ROOTS" value="true" />
++      <option name="ADD_SOURCE_ROOTS" value="true" />
++      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sync_file.py" />
+       <option name="PARAMETERS" value="" />
+       <option name="SHOW_COMMAND_LINE" value="false" />
+       <option name="EMULATE_TERMINAL" value="false" />
+@@ -118,7 +160,9 @@
+     </configuration>
+     <recent_temporary>
+       <list>
++        <item itemvalue="Python.sync_file" />
+         <item itemvalue="Python.main" />
++        <item itemvalue="Python.db" />
+         <item itemvalue="Python.bot" />
+         <item itemvalue="Python.main (1)" />
+       </list>
+@@ -134,7 +178,8 @@
+       <updated>1713013641786</updated>
+       <workItem from="1713013643020" duration="757000" />
+       <workItem from="1713014413997" duration="5895000" />
+-      <workItem from="1713200511258" duration="2667000" />
++      <workItem from="1713200511258" duration="6641000" />
++      <workItem from="1713619308552" duration="303000" />
+     </task>
+     <task id="LOCAL-00001" summary="Создание первого файла, создание окружения и т. п.">
+       <created>1713013738945</created>
+@@ -178,7 +223,14 @@
+       <option name="project" value="LOCAL" />
+       <updated>1713018865380</updated>
+     </task>
+-    <option name="localTasksCounter" value="7" />
++    <task id="LOCAL-00007" summary="создал базу данных, работа с бд асинхронно">
++      <created>1713367210286</created>
++      <option name="number" value="00007" />
++      <option name="presentableId" value="LOCAL-00007" />
++      <option name="project" value="LOCAL" />
++      <updated>1713367210286</updated>
++    </task>
++    <option name="localTasksCounter" value="8" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -212,11 +264,14 @@
+     <MESSAGE value=".env файл, создание бота на BotFather, api" />
+     <MESSAGE value="Бот говорит &quot;Привет!&quot; при команде /start" />
+     <MESSAGE value=".env файл, создание бота на BotFather, api3" />
+-    <option name="LAST_COMMIT_MESSAGE" value=".env файл, создание бота на BotFather, api3" />
++    <MESSAGE value="создал базу данных, работа с бд асинхронно" />
++    <option name="LAST_COMMIT_MESSAGE" value="создал базу данных, работа с бд асинхронно" />
+   </component>
+   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+     <SUITE FILE_PATH="coverage/gorodovorot2024$main__1_.coverage" NAME="main (1) Coverage Results" MODIFIED="1713200684008" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../smth_cute" />
+     <SUITE FILE_PATH="coverage/gorodovorot2024$bot.coverage" NAME="bot Coverage Results" MODIFIED="1713365564880" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+-    <SUITE FILE_PATH="coverage/gorodovorot2024$main.coverage" NAME="main Coverage Results" MODIFIED="1713365569782" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
++    <SUITE FILE_PATH="coverage/gorodovorot2024$db.coverage" NAME="db Coverage Results" MODIFIED="1713368526133" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
++    <SUITE FILE_PATH="coverage/gorodovorot2024$main.coverage" NAME="main Coverage Results" MODIFIED="1713370626255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
++    <SUITE FILE_PATH="coverage/gorodovorot2024$sync_file.coverage" NAME="sync_file Coverage Results" MODIFIED="1713371115348" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+   </component>
+ </project>
+\ No newline at end of file

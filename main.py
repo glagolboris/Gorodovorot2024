@@ -1,15 +1,17 @@
 import os
 from dotenv import load_dotenv
 from bot import AioBot
-from db import asyncDb
+from db import Database
 import asyncio
 
 class Main:
     def __init__(self) -> None:
+        self.db = Database(user='admin', password=self.db_password)
+        self.db.create_tables()
         api = self.api_key
-        self.aio_bot = AioBot(api)
-        self.db = asyncDb(user='admin', password=self.db_password)
+        self.aio_bot = AioBot(api, database=self.db)
         asyncio.run(self.aio_bot.start())
+
 
     @property
     def api_key(self) -> str:

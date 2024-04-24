@@ -99,6 +99,14 @@ class AioBot:
                                         reply_markup=markup)
             await msg
 
+        @self.dispatcher.callback_query(lambda call: len(call.data) == 1)
+        async def callback(call: CallbackQuery):
+            buttons = [[InlineKeyboardButton(text='Да', callback_data=f'id{call.data}')],
+                       [InlineKeyboardButton(text='Нет', callback_data='cancel')]]
+            keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+            await self.bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.message_id,
+                                             text='Вы уверены в выборе категории?', reply_markup=keyboard)
+
     def run_sync_func(self):
         self.handler_of_commands()
         self.handler_callbacks()

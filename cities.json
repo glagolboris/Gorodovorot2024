@@ -1,0 +1,19 @@
+{
+  "Samara": {
+    "rus": "Самара",
+    "categories": [
+      {"name":  "Астероид этого города", "image_path":  "static/Samara/asteroid/wr-960.webp",
+      "info_path": "static/Samara/asteroid/info.txt", "id": "1"},
+      {"name":  "Музыкальный инструмент", "image_path":  "static/Samara/bayan/bayan.jpg",
+      "info_path": "static/Samara/bayan/info.txt", "id": "2"},
+      {"name": "Единственный памятник", "image_path":  "static/Samara/pamyatnic/ryazanov.jpg",
+      "info_path": "static/Samara/pamyatnic/info.txt", "id":  "3"},
+      {"name": "Площадь", "image_path":  "static/Samara/ploshad'/kubychev-square.jpg",
+      "info_path": "static/Samara/ploshad'/info.txt", "id": "4"},
+      {"name": "Песня военного времени", "image_path":  "static/Samara/song/samara.jpg",
+      "info_path": "static/Samara/song/info.txt", "id": "5"},
+      {"name":  "Запасная столица", "image_path": "static/Samara/war/war.jpeg",
+      "info_path":  "static/Samara/song/info.txt", "id":  "6"}
+    ]
+  }
+}

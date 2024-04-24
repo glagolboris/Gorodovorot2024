@@ -1,8 +1,10 @@
-from sqlalchemy import create_engine, Column, Integer, Text
+from sqlalchemy import create_engine, Column, Integer, Text, Boolean, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.dialects.postgresql import ARRAY
 
 Base = declarative_base()
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -12,6 +14,24 @@ class User(Base):
     user_nickname = Column(Text)
     user_firstname = Column(Text)
     user_secondname = Column(Text)
+
+
+class InGame(Base):
+    __tablename__ = 'in_game'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    in_game = Column(Boolean)
+
+
+class Games(Base):
+    __tablename__ = 'games'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    city = Column(Text)
+    available_categories = Column(ARRAY(String))
+
 
 class Database:
     def __init__(self, user, password):
@@ -26,8 +46,11 @@ class Database:
 
     def add_user(self, user_id, user_nickname, user_firstname, user_secondname):
         session = self.Session()
-        user = User(user_id=user_id, user_nickname=user_nickname, user_firstname=user_firstname, user_secondname=user_secondname)
+        user = User(user_id=user_id, user_nickname=user_nickname, user_firstname=user_firstname,
+                    user_secondname=user_secondname)
         session.add(user)
+        in_game = InGame(user_id=user_id, in_game=False)
+        session.add(in_game)
         session.commit()
         session.close()
 
@@ -49,4 +72,54 @@ class Database:
         if user:
             session.delete(user)
             session.commit()
+
+        user = session.query(Games).filter_by(user_id=user_id).first()
+        if user:
+            session.delete(user)
+            session.commit()
+
+        user = session.query(InGame).filter_by(user_id=user_id).first()
+        if user:
+            session.delete(user)
+            session.commit()
+
+        session.close()
+
+    def game_status(self, user_id, status=None):
+        session = self.Session()
+        user = session.query(InGame).filter_by(user_id=user_id).first()
+        if user:
+            if not status:
+                user.in_game = not user.in_game
+                session.commit()
+
+            else:
+                user.in_game = status
+                session.commit()
+        session.close()
+
+    def get_game_status(self, user_id):
+        session = self.Session()
+        user = session.query(InGame).filter_by(user_id=user_id).first()
+        if user:
+            status = user.in_game
+            session.close()
+            return status
+        session.close()
+
+    def add_game(self, user_id, city, categories):
+        session = self.Session()
+        games = Games(user_id=user_id, city=city, available_categories=categories)
+        session.add(games)
+        session.commit()
+        session.close()
+
+    def get_game_data(self, user_id):
+        session = self.Session()
+        game = session.query(Games).filter_by(user_id=user_id).first()
+        if game:
+            info = [game.city, game.available_categories]
+            session.close()
+            return info
+
         session.close()

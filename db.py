@@ -22,6 +22,7 @@ class InGame(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
     in_game = Column(Boolean)
+    waiting_for_city = Column(Boolean)
 
 
 class Games(Base):
@@ -31,6 +32,7 @@ class Games(Base):
     user_id = Column(Integer)
     city = Column(Text)
     available_categories = Column(ARRAY(String))
+    last_callback_id = Column(Integer)
 
 
 class Database:
@@ -49,7 +51,7 @@ class Database:
         user = User(user_id=user_id, user_nickname=user_nickname, user_firstname=user_firstname,
                     user_secondname=user_secondname)
         session.add(user)
-        in_game = InGame(user_id=user_id, in_game=False)
+        in_game = InGame(user_id=user_id, in_game=False, waiting_for_city=False, last_callback_id=0)
         session.add(in_game)
         session.commit()
         session.close()
@@ -107,6 +109,15 @@ class Database:
             return status
         session.close()
 
+    def waiting_for_city_get(self, user_id):
+        session = self.Session()
+        user = session.query(InGame).filter_by(user_id=user_id).first()
+        if user:
+            status = user.waiting_for_city
+            session.close()
+            return status
+        session.close()
+
     def add_game(self, user_id, city, categories):
         session = self.Session()
         games = Games(user_id=user_id, city=city, available_categories=categories)
@@ -123,3 +134,21 @@ class Database:
             return info
 
         session.close()
+
+    def edit_last_callback_id(self, user_id, callback_id):
+        session = self.Session()
+        user = session.query(Games).filter_by(user_id=user_id).first()
+        if user:
+            user.last_callback_id = callback_id
+            session.commit()
+        session.close()
+
+    def get_last_callback_id(self, user_id):
+        session = self.Session()
+        user = session.query(Games).filter_by(user_id=user_id).first()
+        if user:
+            callback_id = user.last_callback_id
+            session.close()
+            return callback_id
+        session.close()
+

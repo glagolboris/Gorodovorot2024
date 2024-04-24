@@ -5,7 +5,7 @@ import asyncio
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, InlineKeyboardMarkup
 import json
 import random
-
+import aiogram
 
 class AioBot:
     def __init__(self, api_id, database):
@@ -106,6 +106,46 @@ class AioBot:
             keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
             await self.bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.message_id,
                                              text='Вы уверены в выборе категории?', reply_markup=keyboard)
+
+        @self.dispatcher.callback_query(lambda call: call.data == 'cancel')
+        async def callback(call: CallbackQuery):
+            markup = self.game_buttons_builder(user_id=call.from_user.id)
+            msg = self.bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.message_id,
+                                        text='🌟 Выберите категорию', reply_markup=markup)
+            await msg
+
+        @self.dispatcher.callback_query(lambda call: call.data.startswith('id'))
+        async def callback(call: CallbackQuery):
+            category_id = call.data[2:]
+            city, available_categories = self.db.get_game_data(user_id=call.from_user.id)
+            categories = self.data[city]['categories']
+
+            for category_ in categories:
+                if category_['id'] == category_id:
+                    category = category_
+
+            text = f'🌟 <b>"{category["name"]}"</b>\n{open(category["info_path"]).read()}'
+
+            await self.bot.send_photo(chat_id=call.from_user.id, photo=BufferedInputFile.from_file(category['image_path']),
+                                    caption=text, parse_mode='html')
+
+
+    def text_handler(self):
+        """
+        Handler of text messages
+        """
+        @self.dispatcher.message(aiogram.F.text)
+        async def any_messages(message: Message):
+            if self.db.waiting_for_city_get(user_id=message.chat.id):
+                city = message.text.strip().lower()
+                last_callback = self.db.get_last_callback_id(user_id=message.chat.id)
+                await self.bot.delete_message(chat_id=message.chat.id, message_id=last_callback)
+
+
+
+
+
+
 
     def run_sync_func(self):
         self.handler_of_commands()

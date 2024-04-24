@@ -14,6 +14,7 @@
       "info_path": "static/Samara/song/info.txt", "id": "5"},
       {"name":  "Запасная столица", "image_path": "static/Samara/war/war.jpeg",
       "info_path":  "static/Samara/song/info.txt", "id":  "6"}
-    ]
+    ],
+    "variants": ['самара']
   }
 }

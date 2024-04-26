@@ -7,6 +7,7 @@ import json
 import random
 import aiogram
 
+
 class AioBot:
     def __init__(self, api_id, database):
         self.data = json.load(open('cities.json'))
@@ -15,8 +16,6 @@ class AioBot:
         self.dispatcher = Dispatcher()
         self.db = database
         self.run_sync_func()
-
-
 
     def buttons_builder(self):
         """
@@ -38,7 +37,6 @@ class AioBot:
                    for category in categories]
         game_mrkp = InlineKeyboardMarkup(inline_keyboard=buttons)
 
-
         return game_mrkp
 
     def start_game_process(self, user_id):
@@ -54,6 +52,7 @@ class AioBot:
         """
         Handler of commands
         """
+
         @self.dispatcher.message(Command('start'))
         async def cmd_start(message: types.Message):
             if not self.db.get_user_by_id(message.chat.id):
@@ -86,20 +85,22 @@ class AioBot:
 
         @self.dispatcher.message(Command('help'))
         async def help_cmd(message: types.Message):
-            await message.answer("👤 Цель игры - угадать крупные города России по интересным фактам. "
-                                 "Вам предстоит выбирать одну из доступных "
-                                 "  категорий о городе. Бот присылает информацию, "
-                                 "а ваша задача - дать верный ответ. Если ваш ответ совпадает "
-                                 "с правильным вариантом, вы побеждаете! В противном случае, вам"
-                                 "придется выбрать следующую категорию. Если вы не угадаете правильный вариант"
-                                 "из всех категорий, вы проигрываете.")
-
-
+            buttons = [[InlineKeyboardButton(text='Назад', callback_data='back')]]
+            keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+            await self.bot.send_message(chat_id=message.chat.id, text="👤 Цель игры - угадать крупные города России "
+                                                                      "по интересным фактам."
+                                        "Вам предстоит выбирать одну из доступных "
+                                        "  категорий о городе. Бот присылает информацию, "
+                                        "а ваша задача - дать верный ответ. Если ваш ответ совпадает "
+                                        "с правильным вариантом, вы побеждаете! В противном случае, вам"
+                                        "придется выбрать следующую категорию. Если вы не угадаете правильный вариант"
+                                        "из всех категорий, вы проигрываете.", reply_markup=keyboard)
 
     def handler_callbacks(self):
         """
         Handler of keyboard (buttons) callbacks
         """
+
         @self.dispatcher.callback_query(lambda call: call.data == 'start_game')
         async def callback(call: CallbackQuery):
             await self.bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
@@ -122,7 +123,7 @@ class AioBot:
         async def callback(call: CallbackQuery):
             markup = self.game_buttons_builder(user_id=call.from_user.id)
             msg = self.bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.message_id,
-                                        text='🌟 Выберите категорию', reply_markup=markup)
+                                             text='🌟 Выберите категорию', reply_markup=markup)
             await msg
 
         @self.dispatcher.callback_query(lambda call: call.data.startswith('id'))
@@ -137,14 +138,20 @@ class AioBot:
 
             text = f'🌟 <b>"{category["name"]}"</b>\n{open(category["info_path"]).read()}'
 
-            await self.bot.send_photo(chat_id=call.from_user.id, photo=BufferedInputFile.from_file(category['image_path']),
-                                    caption=text, parse_mode='html')
+            await self.bot.send_photo(chat_id=call.from_user.id,
+                                      photo=BufferedInputFile.from_file(category['image_path']),
+                                      caption=text, parse_mode='html')
+
+        @self.dispatcher.callback_query(lambda call: call.data == 'back')
+        async def callback(call: CallbackQuery):
+            await self.bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.message_id, reply_markup=self.start_mrkp.as_markup())
 
 
     def text_handler(self):
         """
         Handler of text messages
         """
+
         @self.dispatcher.message(aiogram.F.text)
         async def any_messages(message: Message):
             if self.db.waiting_for_city_get(user_id=message.chat.id):

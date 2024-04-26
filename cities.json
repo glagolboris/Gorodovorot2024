@@ -125,22 +125,6 @@
     ],
     "variants": ["красноярск"]
   },
-     "Kazan'": {
-    "rus": "Казань",
-    "categories": [
-      {"name":  "Старый мегаполис", "image_path":  "static/Kazan'/age/kaz.jpg",
-      "info_path": "static/Kazan'/age/info.txt", "id": "1"},
-      {"name":  "Жена художника", "image_path":  "static/Kazan'/dali/gala_dali.jpg",
-      "info_path": "static/Kazan'/dali/info.txt", "id": "2"},
-      {"name": "Интересный храм", "image_path":  "static/Kazan'/hram/Hram_vseh_religiy.jpg",
-      "info_path": "static/Kazan'/hram/about.txt", "id":  "3"},
-      {"name": "Казанский Кремль", "image_path":  "static/Kazan'/kremlin/Kaxan_Kremlin.webp",
-      "info_path": "static/Kazan'/kremlin/about.txt", "id": "4"},
-      {"name":  "Башня", "image_path": "static/Kazan'/suumbike/Suumbike.jpg",
-      "info_path":  "static/Kazan'/suumbike/about.txt", "id":  "5"}
-    ],
-    "variants": ["казань"]
-  },
        "Chelyabinsk": {
     "rus": "Челябинск",
     "categories": [

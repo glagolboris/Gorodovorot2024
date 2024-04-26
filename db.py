@@ -35,6 +35,14 @@ class Games(Base):
     last_callback_id = Column(Integer)
 
 
+class UserInfo(Base):
+    __tablename__ = 'profile'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    score = Column(Integer)
+
+
 class Database:
     def __init__(self, user, password):
         self.engine = create_engine(f'postgresql://{user}:{password}@localhost:5432/gorodovorot')
@@ -51,8 +59,11 @@ class Database:
         user = User(user_id=user_id, user_nickname=user_nickname, user_firstname=user_firstname,
                     user_secondname=user_secondname)
         session.add(user)
-        in_game = InGame(user_id=user_id, in_game=False, waiting_for_city=False, last_callback_id=0)
+        in_game = InGame(user_id=user_id, in_game=False, waiting_for_city=False)
         session.add(in_game)
+        session.commit()
+        user_score = UserInfo(user_id=user_id, score=0)
+        session.add(user_score)
         session.commit()
         session.close()
 
@@ -87,11 +98,23 @@ class Database:
 
         session.close()
 
+    def clear_after_game(self, user_id):
+        session = self.Session()
+        user = session.query(Games).filter_by(user_id=user_id).first()
+        if user:
+            session.delete(user)
+            session.commit()
+
+        self.set_waiting_for_city(user_id=user_id, status=False)
+        self.game_status(user_id=user_id, status=False)
+
+        session.close()
+
     def game_status(self, user_id, status=None):
         session = self.Session()
         user = session.query(InGame).filter_by(user_id=user_id).first()
         if user:
-            if not status:
+            if status is None:
                 user.in_game = not user.in_game
                 session.commit()
 
@@ -120,7 +143,7 @@ class Database:
 
     def add_game(self, user_id, city, categories):
         session = self.Session()
-        games = Games(user_id=user_id, city=city, available_categories=categories)
+        games = Games(user_id=user_id, city=city, available_categories=categories, last_callback_id=0)
         session.add(games)
         session.commit()
         session.close()
@@ -135,20 +158,19 @@ class Database:
 
         session.close()
 
-    def edit_last_callback_id(self, user_id, callback_id):
+    def set_available_categories(self, user_id, categories):
         session = self.Session()
         user = session.query(Games).filter_by(user_id=user_id).first()
         if user:
-            user.last_callback_id = callback_id
+            user.available_categories = categories
             session.commit()
         session.close()
 
-    def get_last_callback_id(self, user_id):
+    def set_waiting_for_city(self, user_id, status):
         session = self.Session()
-        user = session.query(Games).filter_by(user_id=user_id).first()
+        user = session.query(InGame).filter_by(user_id=user_id).first()
         if user:
-            callback_id = user.last_callback_id
-            session.close()
-            return callback_id
+            print(1)
+            user.waiting_for_city = status
+            session.commit()
         session.close()
-

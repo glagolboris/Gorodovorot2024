@@ -24,6 +24,10 @@ class AioBot:
         self.start_mrkp = InlineKeyboardBuilder()
         bttn_1 = InlineKeyboardButton(text='Начать игру!', callback_data='start_game')
         self.start_mrkp.add(bttn_1)
+        bttn_2 = InlineKeyboardButton(text='Помощь', callback_data='help')
+        self.start_mrkp.add(bttn_2)
+        bttn_3 = InlineKeyboardButton(text='Профиль', callback_data='profile')
+        self.start_mrkp.add(bttn_3)
 
     def game_buttons_builder(self, user_id):
         """
@@ -33,11 +37,15 @@ class AioBot:
         city_data = self.data[city]
         city_categories = city_data['categories']
         categories = [category for category in city_categories if category['id'] in available_categories]
-        buttons = [[InlineKeyboardButton(text=category['name'], callback_data=category['id'])]
-                   for category in categories]
-        game_mrkp = InlineKeyboardMarkup(inline_keyboard=buttons)
+        if len(categories) > 0:
+            buttons = [[InlineKeyboardButton(text=category['name'], callback_data=category['id'])]
+                       for category in categories]
+            game_mrkp = InlineKeyboardMarkup(inline_keyboard=buttons)
 
-        return game_mrkp
+            return game_mrkp
+
+        else:
+            return None
 
     def start_game_process(self, user_id):
         """
@@ -68,7 +76,9 @@ class AioBot:
                                  user_secondname=user_second)
 
             else:
+
                 if not self.db.get_game_status(user_id=message.chat.id):
+                    self.db.clear_after_game(user_id=message.chat.id)
                     await message.answer(f'Рад тебя видеть, <a href="https://t.me/{message.from_user.username}">'
                                          f'{message.from_user.first_name}</a>!',
                                          reply_markup=self.start_mrkp.as_markup(), parse_mode='html',
@@ -82,19 +92,6 @@ class AioBot:
             if command == 'change_game_status':
                 self.db.game_status(user_id=message.chat.id)
                 await message.answer(f"✅ Status changed to - {self.db.get_game_status(user_id=message.chat.id)}")
-
-        @self.dispatcher.message(Command('help'))
-        async def help_cmd(message: types.Message):
-            buttons = [[InlineKeyboardButton(text='Назад', callback_data='back')]]
-            keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-            await self.bot.send_message(chat_id=message.chat.id, text="👤 Цель игры - угадать крупные города России "
-                                                                      "по интересным фактам."
-                                        "Вам предстоит выбирать одну из доступных "
-                                        "  категорий о городе. Бот присылает информацию, "
-                                        "а ваша задача - дать верный ответ. Если ваш ответ совпадает "
-                                        "с правильным вариантом, вы побеждаете! В противном случае, вам"
-                                        "придется выбрать следующую категорию. Если вы не угадаете правильный вариант"
-                                        "из всех категорий, вы проигрываете.", reply_markup=keyboard)
 
     def handler_callbacks(self):
         """
@@ -130,38 +127,96 @@ class AioBot:
         async def callback(call: CallbackQuery):
             category_id = call.data[2:]
             city, available_categories = self.db.get_game_data(user_id=call.from_user.id)
-            categories = self.data[city]['categories']
+            available_categories.remove(category_id)
+            self.db.set_available_categories(user_id=call.from_user.id, categories=available_categories)
 
+            categories = self.data[city]['categories']
+            print(city, categories)
             for category_ in categories:
                 if category_['id'] == category_id:
                     category = category_
 
             text = f'🌟 <b>"{category["name"]}"</b>\n{open(category["info_path"]).read()}'
 
-            await self.bot.send_photo(chat_id=call.from_user.id,
-                                      photo=BufferedInputFile.from_file(category['image_path']),
-                                      caption=text, parse_mode='html')
+            await self.bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
+
+            msg = await self.bot.send_photo(chat_id=call.from_user.id,
+                                            photo=BufferedInputFile.from_file(category['image_path']),
+                                            caption=text, parse_mode='html')
+            print('a')
+            print('msgid', msg.message_id)
+            self.db.set_waiting_for_city(user_id=call.from_user.id, status=True)
 
         @self.dispatcher.callback_query(lambda call: call.data == 'back')
         async def callback(call: CallbackQuery):
-            await self.bot.edit_message_text(chat_id=call.from_user.id, message_id=call.message.message_id, reply_markup=self.start_mrkp.as_markup())
+            self.buttons_builder()
+            await self.bot.edit_message_text(text=f'Рад тебя видеть, <a href="https://t.me/{call.from_user.username}">'
+                                                  f'{call.from_user.first_name}</a>!',
+                                             reply_markup=self.start_mrkp.as_markup(), parse_mode='html',
+                                             disable_web_page_preview=1, message_id=call.message.message_id,
+                                             chat_id=call.from_user.id)
 
+        @self.dispatcher.callback_query(lambda call: call.data == 'help')
+        async def help_cmd(call: types.Message):
+            buttons = [[InlineKeyboardButton(text='Назад', callback_data='back')]]
+            keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+            await self.bot.edit_message_text(chat_id=call.from_user.id,
+                                             text="👤 Цель игры - угадать крупные города России "
+                                                  "по интересным фактам."
+                                                  "Вам предстоит выбирать одну из доступных"
+                                                  "  категорий о городе. Бот присылает информацию, "
+                                                  "а ваша задача - дать верный ответ. Если ваш ответ совпадает "
+                                                  "с правильным вариантом, вы побеждаете! В противном случае, вам "
+                                                  "придется выбрать следующую категорию. Если вы не угадаете правильный вариант"
+                                                  "из всех категорий, вы проигрываете.",
+                                             reply_markup=keyboard, message_id=call.message.message_id)
 
     def text_handler(self):
         """
         Handler of text messages
         """
 
-        @self.dispatcher.message(aiogram.F.text)
+        @self.dispatcher.message()
         async def any_messages(message: Message):
+            print(2)
             if self.db.waiting_for_city_get(user_id=message.chat.id):
-                city = message.text.strip().lower()
-                last_callback = self.db.get_last_callback_id(user_id=message.chat.id)
-                await self.bot.delete_message(chat_id=message.chat.id, message_id=last_callback)
+                print(3)
+                answer = message.text.strip().lower()
+                print(message.chat.id, message.from_user.id)
+                city, available_categories = self.db.get_game_data(user_id=message.chat.id)
+                if answer in self.data[city]['variants']:
+                    buttons = [[InlineKeyboardButton(text='Сыграть еще раз!', callback_data=f'start_game')]]
+                    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+                    await self.bot.send_message(chat_id=message.chat.id, text='Верно!')
+                    msg = self.bot.send_message(chat_id=message.chat.id, text='Вы победили!', reply_markup=keyboard)
+                    await msg
+                    self.db.game_status(user_id=message.chat.id, status=False)
+                    self.db.set_waiting_for_city(user_id=message.chat.id, status=False)
+                    self.db.clear_after_game(user_id=message.chat.id)
+
+                else:
+                    print(answer, self.data[city]['variants'])
+                    self.db.set_waiting_for_city(user_id=message.chat.id, status=False)
+                    await self.bot.send_message(chat_id=message.chat.id, text='Неверно!')
+                    markup = self.game_buttons_builder(user_id=message.chat.id)
+                    if markup:
+                        msg = self.bot.send_message(chat_id=message.chat.id,
+                                                    text='🌟 Выберите категорию', reply_markup=markup)
+                    else:
+                        buttons = [[InlineKeyboardButton(text='Попробовать еще раз', callback_data=f'start_game')]]
+                        keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+                        msg = self.bot.send_message(chat_id=message.chat.id,
+                                                    text='🔰 Вы проиграли!', reply_markup=keyboard)
+                        self.db.game_status(user_id=message.chat.id, status=False)
+                        self.db.set_waiting_for_city(user_id=message.chat.id, status=False)
+                        self.db.clear_after_game(user_id=message.chat.id)
+
+                    await msg
 
     def run_sync_func(self):
         self.handler_of_commands()
         self.handler_callbacks()
+        self.text_handler()
 
     async def start(self):
         await self.dispatcher.start_polling(self.bot)

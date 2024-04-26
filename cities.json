@@ -144,18 +144,34 @@
        "Chelyabinsk": {
     "rus": "Челябинск",
     "categories": [
-      {"name":  "Хднб, злаки", "image_path":  "static/Cheliabinsk/birzha/birzha.jpg",
+      {"name":  "Хлеб, злаки", "image_path":  "static/Cheliabinsk/birzha/birzha.jpg",
       "info_path": "static/Cheliabinsk/birzha/info.txt", "id": "1"},
       {"name":  "Он такой один", "image_path":  "static/Cheliabinsk/edinstvenniy/gagarin-park.jpg",
       "info_path": "static/Cheliabinsk/edinstvenniy/info.txt", "id": "2"},
       {"name": "Метеорит", "image_path":  "static/Cheliabinsk/meteorit/meteorit.jpg",
       "info_path": "static/Cheliabinsk/meteorit/info.txt", "id":  "3"},
-      {"name": "Война", "image_path":  "static/Kazan'/kremlin/Kaxan_Kremlin.webp",
-      "info_path": "static/Cheliabinsk/war/T-34.JPG", "id": "4"},
+      {"name": "Война", "image_path":  "static/Cheliabinsk/war/T-34.JPG",
+      "info_path": "static/Cheliabinsk/war/info.txt", "id": "4"},
       {"name":  "Литературные герои", "image_path": "static/Cheliabinsk/Ostap_Bender/Osip_Shor.jpg",
       "info_path":  "static/Cheliabinsk/Ostap_Bender/info.txt", "id":  "5"}
     ],
     "variants": ["челябинск"]
+  },
+         "Ekaterinburg": {
+    "rus": "Екатеринбург",
+    "categories": [
+      {"name":  "Дед Мороз", "image_path":  "static/Ekaterinburg/ded_moroz/ded.jpg",
+      "info_path": "static/Ekaterinburg/ded_moroz/info.txt", "id": "1"},
+      {"name":  "Рекорды Гинесса", "image_path":  "static/Ekaterinburg/guiness/maionez.jpg",
+      "info_path": "static/Ekaterinburg/guiness/info.txt", "id": "2"},
+      {"name": "Кольская скважина", "image_path":  "static/Ekaterinburg/kolskaya/kol.jpeg",
+      "info_path": "static/Ekaterinburg/kolskaya/info.txt", "id":  "3"},
+      {"name": "Метрополитен", "image_path":  "static/Ekaterinburg/metro/images.jpeg",
+      "info_path": "static/Ekaterinburg/metro/info.txt", "id": "4"},
+      {"name":  "Самый маленький?", "image_path": "static/Ekaterinburg/mini/gorod.jpg",
+      "info_path":  "static/Ekaterinburg/mini/info.txt", "id":  "5"}
+    ],
+    "variants": ["екатеринбург", "екб"]
   }
 }
 

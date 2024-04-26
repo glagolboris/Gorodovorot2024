@@ -84,6 +84,17 @@ class AioBot:
                 self.db.game_status(user_id=message.chat.id)
                 await message.answer(f"✅ Status changed to - {self.db.get_game_status(user_id=message.chat.id)}")
 
+        @self.dispatcher.message(Command('help'))
+        async def help_cmd(message: types.Message):
+            await message.answer("👤 Цель игры - угадать крупные города России по интересным фактам. "
+                                 "Вам предстоит выбирать одну из доступных "
+                                 "  категорий о городе. Бот присылает информацию, "
+                                 "а ваша задача - дать верный ответ. Если ваш ответ совпадает "
+                                 "с правильным вариантом, вы побеждаете! В противном случае, вам"
+                                 "придется выбрать следующую категорию. Если вы не угадаете правильный вариант"
+                                 "из всех категорий, вы проигрываете.")
+
+
 
     def handler_callbacks(self):
         """
@@ -140,12 +151,6 @@ class AioBot:
                 city = message.text.strip().lower()
                 last_callback = self.db.get_last_callback_id(user_id=message.chat.id)
                 await self.bot.delete_message(chat_id=message.chat.id, message_id=last_callback)
-
-
-
-
-
-
 
     def run_sync_func(self):
         self.handler_of_commands()

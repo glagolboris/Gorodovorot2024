@@ -16,5 +16,146 @@
       "info_path":  "static/Samara/song/info.txt", "id":  "6"}
     ],
     "variants": ["самара"]
+  },
+  "Voronezh": {
+    "rus": "Воронеж",
+    "categories": [
+      {
+        "name": "Артиллерия Великой Отечественной Войны",
+        "image_path": "static/Voronezh/katusha/BM-13.jpg",
+        "info_path": "static/Voronezh/katusha/info.txt",
+        "id": "1"
+      },
+      {
+        "name": "Кораблестроение",
+        "image_path": "static/Voronezh/korablestroenie/goto_predistancii.jpg",
+        "info_path": "static/Voronezh/korablestroenie/info.txt",
+        "id": "2"
+      },
+      {
+        "name": "Музыкальная группа",
+        "image_path": "static/Voronezh/music/Sektor_gaza.jpg",
+        "info_path": "static/Voronezh/music/info.txt",
+        "id": "3"
+      },
+      {
+        "name": "Парашютный спорт",
+        "image_path": "static/Voronezh/parashut/minov.jpg",
+        "info_path": "static/Voronezh/parashut/info.txt",
+        "id": "4"
+      },
+      {
+        "name": "Известный писатель",
+        "image_path": "static/Voronezh/pisatel'/pamyatnic_platonov.jpg",
+        "info_path": "static/Voronezh/pisatel'/info.txt",
+        "id": "5"
+      },
+      {
+        "name": "Самолет времен СССР",
+        "image_path": "static/Voronezh/samoleti/Tu-144.jpg",
+        "info_path": "static/Voronezh/samoleti/info.txt",
+        "id": "6"
+      }
+    ],
+    "variants": [
+      "воронеж"
+    ]
+  },
+  "Volgograd": {
+    "rus": "Волгоград",
+    "categories": [
+      {"name":  "Дом с историей", "image_path":  "static/Volgograd/dom/dom_pavlova.jpg",
+      "info_path": "static/Volgograd/dom/info.txt", "id": "1"},
+      {"name":  "Памятник личности", "image_path":  "static/Volgograd/lenin/lenin.jpg",
+      "info_path": "static/Volgograd/lenin/info.txt", "id": "2"},
+      {"name": "Метро (или нет)", "image_path":  "static/Volgograd/metrotram/tram.jpg",
+      "info_path": "static/Volgograd/metrotram/info.txt", "id":  "3"},
+      {"name": "Город во времена войны", "image_path":  "static/Volgograd/war/city.jpg",
+      "info_path": "static/Volgograd/war/info.txt", "id": "5"},
+      {"name":  "Музей", "image_path": "static/Volgograd/paulus/paulus.jpg",
+      "info_path":  "static/Volgograd/paulus/info.txt", "id":  "6"}
+    ],
+    "variants": ["волгоград"]
+  },
+    "Ufa": {
+    "rus": "Уфа",
+    "categories": [
+      {"name":  "Арт-объект со смыслом", "image_path":  "static/Ufa/art_object/tri_shurupa.jpg",
+      "info_path": "static/Ufa/art_object/info.txt", "id": "1"},
+      {"name":  "Памятник личности", "image_path":  "static/Ufa/fountain/fountain_7_dev.jpg",
+      "info_path": "static/Ufa/fountain/info.txt", "id": "2"},
+      {"name": "Известная личность", "image_path":  "static/Ufa/lichnost'/salavat_ulaev.jpg",
+      "info_path": "static/Ufa/lichnost'/info.txt", "id":  "3"},
+      {"name": "Религия. Мечети", "image_path":  "static/Ufa/mecheti/ar_rahim.jpeg",
+      "info_path": "static/Ufa/mecheti/info.txt", "id": "4"},
+      {"name":  "Музыкальный исполнитель", "image_path": "static/Ufa/singer/Zemfira.jpg",
+      "info_path":  "static/Ufa/singer/info.txt", "id":  "5"}
+    ],
+    "variants": ["уфа"]
+  },
+      "Saint-Petersburg": {
+    "rus": "Санкт-Петербург",
+    "categories": [
+      {"name":  "Малахит", "image_path":  "static/Saint-Petersburg/malahit/malahit.jpeg",
+      "info_path": "static/Saint-Petersburg/malahit/info.txt", "id": "1"},
+      {"name":  "Известный музей", "image_path":  "static/Saint-Petersburg/museum/museum.jpg",
+      "info_path": "static/Saint-Petersburg/museum/info.txt", "id": "2"},
+      {"name": "Самый высокий", "image_path":  "static/Saint-Petersburg/sobor/petrop.jpeg",
+      "info_path": "static/Saint-Petersburg/sobor/info.txt", "id":  "3"},
+      {"name": "Трамвай", "image_path":  "static/Saint-Petersburg/tram/tram.jpg",
+      "info_path": "static/Saint-Petersburg/tram/info.txt", "id": "4"},
+      {"name":  "Метро", "image_path": "static/Saint-Petersburg/underground/metro.jpg",
+      "info_path":  "static/Saint-Petersburg/underground/info.txt", "id":  "5"}
+    ],
+    "variants": ["санкт-петербург", "питер", "спб", "петербург", "санктпетербург"]
+  },
+      "Krasnoyarsk": {
+    "rus": "Красноярск",
+    "categories": [
+      {"name":  "Картофель", "image_path":  "static/Krasnoyarsk/kartofel'/potato.jpeg",
+      "info_path": "static/Krasnoyarsk/kartofel'/info.txt", "id": "1"},
+      {"name":  "Казино", "image_path":  "static/Krasnoyarsk/kazino/k.jpg",
+      "info_path": "static/Krasnoyarsk/kazino/info.txt", "id": "2"},
+      {"name": "Монумент", "image_path":  "static/Krasnoyarsk/Lenin/Lenin.jpg",
+      "info_path": "static/Krasnoyarsk/Lenin/info.txt", "id":  "3"},
+      {"name": "Космический объект", "image_path":  "static/Krasnoyarsk/meteorit/palas.jpg",
+      "info_path": "static/Krasnoyarsk/meteorit/info.txt", "id": "4"},
+      {"name":  "Купюры", "image_path": "static/Krasnoyarsk/money/rubles.jpg",
+      "info_path":  "static/Krasnoyarsk/money/info.txt", "id":  "5"}
+    ],
+    "variants": ["красноярск"]
+  },
+     "Kazan'": {
+    "rus": "Казань",
+    "categories": [
+      {"name":  "Старый мегаполис", "image_path":  "static/Kazan'/age/kaz.jpg",
+      "info_path": "static/Kazan'/age/info.txt", "id": "1"},
+      {"name":  "Жена художника", "image_path":  "static/Kazan'/dali/gala_dali.jpg",
+      "info_path": "static/Kazan'/dali/info.txt", "id": "2"},
+      {"name": "Интересный храм", "image_path":  "static/Kazan'/hram/Hram_vseh_religiy.jpg",
+      "info_path": "static/Kazan'/hram/about.txt", "id":  "3"},
+      {"name": "Казанский Кремль", "image_path":  "static/Kazan'/kremlin/Kaxan_Kremlin.webp",
+      "info_path": "static/Kazan'/kremlin/about.txt", "id": "4"},
+      {"name":  "Башня", "image_path": "static/Kazan'/suumbike/Suumbike.jpg",
+      "info_path":  "static/Kazan'/suumbike/about.txt", "id":  "5"}
+    ],
+    "variants": ["казань"]
+  },
+       "Chelyabinsk": {
+    "rus": "Челябинск",
+    "categories": [
+      {"name":  "Хднб, злаки", "image_path":  "static/Cheliabinsk/birzha/birzha.jpg",
+      "info_path": "static/Cheliabinsk/birzha/info.txt", "id": "1"},
+      {"name":  "Он такой один", "image_path":  "static/Cheliabinsk/edinstvenniy/gagarin-park.jpg",
+      "info_path": "static/Cheliabinsk/edinstvenniy/info.txt", "id": "2"},
+      {"name": "Метеорит", "image_path":  "static/Cheliabinsk/meteorit/meteorit.jpg",
+      "info_path": "static/Cheliabinsk/meteorit/info.txt", "id":  "3"},
+      {"name": "Война", "image_path":  "static/Kazan'/kremlin/Kaxan_Kremlin.webp",
+      "info_path": "static/Cheliabinsk/war/T-34.JPG", "id": "4"},
+      {"name":  "Литературные герои", "image_path": "static/Cheliabinsk/Ostap_Bender/Osip_Shor.jpg",
+      "info_path":  "static/Cheliabinsk/Ostap_Bender/info.txt", "id":  "5"}
+    ],
+    "variants": ["челябинск"]
   }
 }
+

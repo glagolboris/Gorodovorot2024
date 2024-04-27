@@ -66,6 +66,7 @@ class Database:
         user_score = UserInfo(user_id=user_id, score=0)
         session.add(user_score)
         session.commit()
+        print('user:', user_id, user_nickname, user_firstname, user_secondname)
         session.close()
 
     def get_user_by_id(self, user_id):

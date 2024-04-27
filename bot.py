@@ -33,8 +33,11 @@ class AioBot:
         """
         Builder of inline buttons in game
         """
+
+
         city, available_categories = self.db.get_game_data(user_id=user_id)
         city_data = self.data[city]
+        print('test_for_changing 2:', city)
         city_categories = city_data['categories']
         categories = [category for category in city_categories if category['id'] in available_categories]
         if len(categories) > 0:
@@ -53,6 +56,7 @@ class AioBot:
         Working with JSON data
         """
         city = random.choice(list(self.data.keys()))
+        print('test_for_changing 3:', city)
         available_categories = [category["id"] for category in self.data[city]["categories"]]
         self.db.add_game(user_id=user_id, city=city, categories=available_categories)
 
@@ -92,6 +96,11 @@ class AioBot:
             if command == 'change_game_status':
                 self.db.game_status(user_id=message.chat.id)
                 await message.answer(f"✅ Status changed to - {self.db.get_game_status(user_id=message.chat.id)}")
+            elif command == 'drop':
+                self.db.drop_tables()
+                self.db.create_tables()
+                await message.answer(f'✅ Tables was dropped')
+
 
     def handler_callbacks(self):
         """
@@ -127,11 +136,11 @@ class AioBot:
         async def callback(call: CallbackQuery):
             category_id = call.data[2:]
             city, available_categories = self.db.get_game_data(user_id=call.from_user.id)
+            print('test_for_changing 1:', city)
             available_categories.remove(category_id)
             self.db.set_available_categories(user_id=call.from_user.id, categories=available_categories)
 
             categories = self.data[city]['categories']
-            print(city, categories)
             for category_ in categories:
                 if category_['id'] == category_id:
                     category = category_
@@ -140,11 +149,10 @@ class AioBot:
 
             await self.bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id)
 
-            msg = await self.bot.send_photo(chat_id=call.from_user.id,
+            await self.bot.send_photo(chat_id=call.from_user.id,
                                             photo=BufferedInputFile.from_file(category['image_path']),
                                             caption=text, parse_mode='html')
-            print('a')
-            print('msgid', msg.message_id)
+            print(self.data[city])
             self.db.set_waiting_for_city(user_id=call.from_user.id, status=True)
 
         @self.dispatcher.callback_query(lambda call: call.data == 'back')
@@ -171,6 +179,14 @@ class AioBot:
                                                   "из всех категорий, вы проигрываете.",
                                              reply_markup=keyboard, message_id=call.message.message_id)
 
+        @self.dispatcher.callback_query(lambda call: call.data == 'profile')
+        async def profile_cmd(call: types.Message):
+            buttons = [[InlineKeyboardButton(text='Назад', callback_data='back')]]
+            keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+            await self.bot.edit_message_text(chat_id=call.from_user.id,
+                                             text=f"У вас - {self.db.get_score(user_id=call.from_user.id)} очков!",
+                                             reply_markup=keyboard, message_id=call.message.message_id)
+
     def text_handler(self):
         """
         Handler of text messages
@@ -185,17 +201,22 @@ class AioBot:
                 print(message.chat.id, message.from_user.id)
                 city, available_categories = self.db.get_game_data(user_id=message.chat.id)
                 if answer in self.data[city]['variants']:
-                    buttons = [[InlineKeyboardButton(text='Сыграть еще раз!', callback_data=f'start_game')]]
+                    buttons = [[InlineKeyboardButton(text='Сыграть еще раз!', callback_data=f'start_game')],
+                                   [InlineKeyboardButton(text='Назад', callback_data=f'back')]]
                     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
                     await self.bot.send_message(chat_id=message.chat.id, text='Верно!')
                     msg = self.bot.send_message(chat_id=message.chat.id, text='Вы победили!', reply_markup=keyboard)
                     await msg
                     self.db.game_status(user_id=message.chat.id, status=False)
                     self.db.set_waiting_for_city(user_id=message.chat.id, status=False)
+                    city, available_categories = self.db.get_game_data(user_id=message.chat.id)
+                    self.db.add_score(user_id=message.chat.id, scores=len(available_categories))
                     self.db.clear_after_game(user_id=message.chat.id)
 
+
+
+
                 else:
-                    print(answer, self.data[city]['variants'])
                     self.db.set_waiting_for_city(user_id=message.chat.id, status=False)
                     await self.bot.send_message(chat_id=message.chat.id, text='Неверно!')
                     markup = self.game_buttons_builder(user_id=message.chat.id)
@@ -203,7 +224,8 @@ class AioBot:
                         msg = self.bot.send_message(chat_id=message.chat.id,
                                                     text='🌟 Выберите категорию', reply_markup=markup)
                     else:
-                        buttons = [[InlineKeyboardButton(text='Попробовать еще раз', callback_data=f'start_game')]]
+                        buttons = [[InlineKeyboardButton(text='Попробовать еще раз', callback_data=f'start_game')],
+                                   [InlineKeyboardButton(text='Назад', callback_data=f'back')]]
                         keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
                         msg = self.bot.send_message(chat_id=message.chat.id,
                                                     text='🔰 Вы проиграли!', reply_markup=keyboard)

@@ -150,7 +150,8 @@ class Database:
 
     def get_game_data(self, user_id):
         session = self.Session()
-        game = session.query(Games).filter_by(user_id=user_id).first()
+        game = session.query(Games).filter_by(user_id=user_id).order_by(Games.id.desc()).first()
+        print('from db:', game.city)
         if game:
             info = [game.city, game.available_categories]
             session.close()
@@ -160,7 +161,7 @@ class Database:
 
     def set_available_categories(self, user_id, categories):
         session = self.Session()
-        user = session.query(Games).filter_by(user_id=user_id).first()
+        user = session.query(Games).filter_by(user_id=user_id).order_by(Games.id.desc()).first()
         if user:
             user.available_categories = categories
             session.commit()
@@ -173,4 +174,21 @@ class Database:
             print(1)
             user.waiting_for_city = status
             session.commit()
+        session.close()
+
+    def add_score(self, user_id, scores):
+        session = self.Session()
+        user = session.query(UserInfo).filter_by(user_id=user_id).first()
+        if user:
+            user.score += scores
+            session.commit()
+        session.close()
+
+    def get_score(self, user_id):
+        session = self.Session()
+        user = session.query(UserInfo).filter_by(user_id=user_id).first()
+        if user:
+            result = user.score
+            session.close()
+            return result
         session.close()

@@ -238,7 +238,7 @@ class AioBot:
                                    [InlineKeyboardButton(text='Назад', callback_data=f'back')]]
                         keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
                         msg = self.bot.send_message(chat_id=message.chat.id,
-                                                    text='🔰 Вы проиграли!', reply_markup=keyboard)
+                                                    text=f'🔰 Вы проиграли! Правильный ответ - {self.data[city]["rus"]}.', reply_markup=keyboard)
                         self.db.game_status(user_id=message.chat.id, status=False)
                         self.db.set_waiting_for_city(user_id=message.chat.id, status=False)
                         self.db.clear_after_game(user_id=message.chat.id)

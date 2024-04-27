@@ -46,7 +46,7 @@ class UserInfo(Base):
 
 class Database:
     def __init__(self, user, password):
-        self.engine = create_engine(f'postgresql://{user}:{password}@localhost:5432/gorodovorot')
+        self.engine = create_engine(f'postgresql://{user}:{password}@127.0.0.1:5432/gorodovorot')
         self.Session = sessionmaker(bind=self.engine)
 
     def create_tables(self):

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, Text, Boolean, String, BIGINT
+from sqlalchemy import create_engine, Column, Integer, Text, Boolean, String, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -11,7 +11,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(BIGINT)
+    user_id = Column(BigInteger)
     user_nickname = Column(Text)
     user_firstname = Column(Text)
     user_secondname = Column(Text)
@@ -21,7 +21,7 @@ class InGame(Base):
     __tablename__ = 'in_game'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
+    user_id = Column(BigInteger)
     in_game = Column(Boolean)
     waiting_for_city = Column(Boolean)
 
@@ -30,7 +30,7 @@ class Games(Base):
     __tablename__ = 'games'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
+    user_id = Column(BigInteger)
     city = Column(Text)
     available_categories = Column(ARRAY(String))
     last_callback_id = Column(Integer)
@@ -40,7 +40,7 @@ class UserInfo(Base):
     __tablename__ = 'profile'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
+    user_id = Column(BigInteger)
     score = Column(Integer)
 
 

@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, Text, Boolean, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import desc
 
 Base = declarative_base()
 
@@ -151,7 +152,6 @@ class Database:
     def get_game_data(self, user_id):
         session = self.Session()
         game = session.query(Games).filter_by(user_id=user_id).order_by(Games.id.desc()).first()
-        print('from db:', game.city)
         if game:
             info = [game.city, game.available_categories]
             session.close()
@@ -171,7 +171,6 @@ class Database:
         session = self.Session()
         user = session.query(InGame).filter_by(user_id=user_id).first()
         if user:
-            print(1)
             user.waiting_for_city = status
             session.commit()
         session.close()
@@ -192,3 +191,17 @@ class Database:
             session.close()
             return result
         session.close()
+
+    def get_records(self):
+        session = self.Session()
+
+        top_scores = session.query(UserInfo.user_id, UserInfo.score).order_by(desc(UserInfo.score)).limit(10).all()
+        session.close()
+        result = []
+        for el in top_scores:
+            user = self.get_user_by_id(user_id=el[0])
+            text = f'<a href="https://t.me/{user.user_nickname}">{user.user_firstname} {user.user_secondname}</a> ' \
+                   f'- {el[1]} очков'
+            result.append(text)
+
+        return '\n'.join(result)

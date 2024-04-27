@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, Text, Boolean, String
+from sqlalchemy import create_engine, Column, Integer, Text, Boolean, String, BIGINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -11,7 +11,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
+    user_id = Column(BIGINT)
     user_nickname = Column(Text)
     user_firstname = Column(Text)
     user_secondname = Column(Text)
